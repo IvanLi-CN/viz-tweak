@@ -1,0 +1,40 @@
+
+name: 🐳 Build
+on:
+    push:
+        branches:
+            - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+    build:
+        name: 🐳 Build
+        if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+        runs-on: ubuntu-latest
+        permissions:
+          packages: write
+
+        # only build/deploy main branch on pushes
+        steps:
+            - name: 📥 Checkout code
+              uses: actions/checkout@v3
+
+            - name: 🥟 Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                bun-version: latest
+
+            - name: 📦 Install dependencies
+              run: bun install
+
+            - name: 🏗️ Build project
+              run: bun run build
+
+            - name: 🐳 Build and publish
+              uses: macbre/push-to-ghcr@v14
+              with:
+                image_name: ${{ github.repository }}
+                github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,22 @@
+{
+  "name": "viz-tweak",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "bun --filter=\"*\" run build",
+    "dev": "bun --filter=\"*\" run dev",
+    "format": "bun --filter=\"*\" run format",
+    "lint": "bun --filter=\"*\" run lint",
+    "db:push": "bun --filter=\"./apps/server\" run --no-truncate db:push",
+    "db:gen": "bun --filter=\"./apps/server\" run --no-truncate db:gen",
+    "db:studio": "bun --filter=\"./apps/server\" run --no-truncate db:studio"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "ky": "^1.7.2",
+    "p-limit": "^6.1.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "amps": "{{value, number}}A",
+  "milliamps": "{{value, number}}mA",
+  "volts": "{{value, number}}V",
+  "millivolts": "{{value, number}}mV",
+  "watts": "{{value, number}}W",
+  "milliwatts": "{{value, number}}mW",
+  "degrees-centigrade": "{{value, number}}°C",
+  "degrees-fahrenheit": "{{value, number}}°F"
+}
