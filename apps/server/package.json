@@ -8,7 +8,9 @@
     "db:studio": "drizzle-kit studio --config ./drizzle.config.ts"
   },
   "dependencies": {
+    "@hono/trpc-server": "^0.3.2",
     "@hono/zod-validator": "^0.4.1",
+    "@trpc/server": "^11.0.0-rc.648",
     "drizzle-kit": "^0.28.1",
     "drizzle-orm": "^0.36.4",
     "hono": "^4.6.12",

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import ky from "ky";
 import pLimit from "p-limit";
@@ -9,11 +9,20 @@ import {
   useCallback,
   useState,
 } from "react";
-import { type Chunk, getChunks, getExtension } from "../helpers/file.ts";
+import { type Chunk, getChunks } from "../helpers/file.ts";
+import { trpc } from "../helpers/trpc.ts";
 
 type ChunkStatus = "pending" | "done" | "error";
 
 const Upload: FC = () => {
+  const trpcUtils = trpc.useUtils();
+  const createMutation = trpc.attachments.create.useMutation();
+  const initiateMultipartUpload =
+    trpc.attachments.initiateMultipart.useMutation();
+  const completeMultipartUpload =
+    trpc.attachments.completeMultipart.useMutation();
+  const presignedPartUrl = trpc.attachments.presignedPartUrl.useMutation();
+
   const [chunks, setChunks] = useState<(Chunk & { status: ChunkStatus })[]>([]);
 
   const updateChunk = useCallback((number: number, status: ChunkStatus) => {
@@ -38,26 +47,14 @@ const Upload: FC = () => {
     mutationFn: async (file: File) => {
       const mime = file.type;
 
-      const { id, url } = await ky<{ id: string; url: string }>(
-        "/api/attachments",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            mime,
-            filename: file.name,
-          }),
-        },
-      ).json();
+      const { id, url } = await createMutation.mutateAsync({
+        filename: file.name,
+        mime,
+      });
 
-      const { uploadId } = await ky<{ uploadId: string }>(
-        `/api/attachments/${id}/multipart`,
-        {
-          method: "POST",
-        },
-      ).json();
+      const { uploadId } = await initiateMultipartUpload.mutateAsync({
+        id,
+      });
 
       const chunks = getChunks(file).map((c) => ({
         ...c,
@@ -66,12 +63,11 @@ const Upload: FC = () => {
       setChunks(chunks);
 
       const uploadChunk = async ({ part, blob }: Chunk) => {
-        const { url } = await ky<{ url: string }>(
-          `/api/attachments/${id}/multipart/${uploadId}/parts/${part}`,
-          {
-            method: "POST",
-          },
-        ).json();
+        const { url } = await presignedPartUrl.mutateAsync({
+          id,
+          uploadId,
+          partNumber: part,
+        });
 
         const etag = await ky(url, {
           method: "PUT",
@@ -83,7 +79,7 @@ const Upload: FC = () => {
             limit: 3,
           },
         }).then((req) => {
-          return req.headers.get("etag");
+          return req.headers.get("etag") ?? undefined;
         });
 
         updateChunk(part, "done");
@@ -96,16 +92,11 @@ const Upload: FC = () => {
         chunks.map((c) => limit(() => uploadChunk(c))),
       );
 
-      return await ky<{ id: string; url: string }>(
-        `/api/attachments/${id}/multipart/${uploadId}/complete`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ parts }),
-        },
-      ).json();
+      return await completeMultipartUpload.mutateAsync({
+        id,
+        uploadId,
+        parts,
+      });
     },
     onSuccess: (data) => {
       console.log(data);

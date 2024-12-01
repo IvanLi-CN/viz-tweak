@@ -8,7 +8,7 @@
       "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome against localhost",
-      "url": "http://localhost:24114/devices/test",
+      "url": "http://localhost:24114",
       "webRoot": "${workspaceFolder}/apps/webpages",
       "userDataDir": true,
       "runtimeArgs": ["--disable-web-security"],
