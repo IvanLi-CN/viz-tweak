@@ -1,6 +1,7 @@
 import { initTRPC } from "@trpc/server";
 import { z } from "zod";
 import { attachmentsRouter } from "./attachments.ts";
+import { sharesRouter } from "./shares.ts";
 
 const t = initTRPC.create();
 
@@ -13,6 +14,7 @@ export const appRouter = router({
   }),
 
   attachments: attachmentsRouter,
+  shares: sharesRouter,
 });
 
 export type AppRouter = typeof appRouter;

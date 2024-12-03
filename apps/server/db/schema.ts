@@ -11,34 +11,28 @@ export enum AttachmentStatus {
   Deleted = "deleted",
 }
 
-export const attachments = sqliteTable(
-  "attachments",
-  {
-    id: text("id").primaryKey(),
-    filename: text("filename").notNull(),
-    name: text("name").notNull(),
-    path: text("path").unique().notNull(),
-    mime: text("mime"),
-    metadata: text("metadata", { mode: "json" }).default("{}"),
-    status: text("status", {
-      enum: [
-        AttachmentStatus.Created,
-        AttachmentStatus.Uploaded,
-        AttachmentStatus.Deleted,
-      ],
-    })
-      .notNull()
-      .default(AttachmentStatus.Created),
-    owner: text("owner").notNull().default("anonymous"),
-    size: integer("size").notNull(),
-    createdAt: integer("created", { mode: "timestamp" }).notNull(),
-    lastAccessedAt: integer("last_accessed", { mode: "timestamp" }),
-    lastKeptAliveAt: integer("last_kept_alive", { mode: "timestamp" }),
-  },
-  (countries) => ({
-    pathIdx: uniqueIndex("pathIdx").on(countries.path),
-  }),
-);
+export const attachments = sqliteTable("attachments", {
+  id: text("id").primaryKey(),
+  filename: text("filename").notNull(),
+  name: text("name").notNull(),
+  mime: text("mime"),
+  path: text("path").notNull().unique(),
+  metadata: text("metadata", { mode: "json" }).default("{}"),
+  status: text("status", {
+    enum: [
+      AttachmentStatus.Created,
+      AttachmentStatus.Uploaded,
+      AttachmentStatus.Deleted,
+    ],
+  })
+    .notNull()
+    .default(AttachmentStatus.Created),
+  owner: text("owner").notNull().default("anonymous"),
+  size: integer("size").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  lastAccessedAt: integer("last_accessed_at", { mode: "timestamp" }),
+  lastKeptAliveAt: integer("last_kept_alive_at", { mode: "timestamp" }),
+});
 
 export const tags = sqliteTable(
   "tags",
@@ -68,3 +62,16 @@ export const attachments_tags = sqliteTable(
     ),
   }),
 );
+
+export const shares = sqliteTable("shares", {
+  id: text("id").primaryKey(),
+  attachmentId: text("attachment_id")
+    .notNull()
+    .references(() => attachments.id, { onDelete: "cascade" }),
+  path: text("path").notNull().unique(),
+  size: integer("size").notNull(),
+  metadata: text("metadata", { mode: "json" }).default("{}"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  lastAccessedAt: integer("last_accessed_at", { mode: "timestamp" }),
+  lastKeptAliveAt: integer("last_kept_alive_at", { mode: "timestamp" }),
+});

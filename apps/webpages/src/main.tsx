@@ -6,13 +6,39 @@ import "./index.css";
 import invariant from "tiny-invariant";
 import "./i18n.ts";
 import "chart.js/auto";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import { trpc } from "./helpers/trpc.ts";
+import { routeTree } from "./routeTree.gen";
+
+// Create a new router instance
+const router = createRouter({
+  routeTree,
+  defaultPreload: "intent",
+  defaultPendingComponent: () => (
+    <div className={"p-2 text-2xl"}>
+      <p>Loading...</p>
+    </div>
+  ),
+  context: {
+    trpc,
+  },
+});
+
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
 
 const rootEl = document.getElementById("root");
+
 
 invariant(rootEl, "Root element not found");
 
 createRoot(rootEl).render(
   <StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </StrictMode>,
 );

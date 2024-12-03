@@ -11,7 +11,6 @@ import {
   presignedGetUrl,
   presignedPutUrl,
 } from "../s3.ts";
-import { getAttachment } from "../service.ts";
 
 const t = initTRPC.create();
 
@@ -30,11 +29,9 @@ export const attachmentsRouter = t.router({
         while (true) {
           const id = nanoid(12);
 
-          const exists = await db
-            .select({ count: count() })
-            .from(attachments)
-            .where(eq(attachments.id, id))
-            .then(([{ count }]) => count > 0);
+          const exists = await db.query.attachments.findFirst({
+            where: eq(attachments.id, id),
+          });
 
           if (!exists) {
             return id;
@@ -141,7 +138,9 @@ export const attachmentsRouter = t.router({
     .mutation(async ({ input, ctx }) => {
       const { id, uploadId, parts } = input;
 
-      const attachment = await getAttachment(id, db);
+      const attachment = await db.query.attachments.findFirst({
+        where: eq(attachments.id, id),
+      });
       if (!attachment) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -168,13 +167,26 @@ export const attachmentsRouter = t.router({
       return { updated, url };
     }),
 
-  getOne: t.procedure
+  get: t.procedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       const id = input.id;
       const attachment = await db.query.attachments.findFirst({
         where: eq(attachments.id, id),
       });
-      return attachment;
+
+      if (!attachment) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Attachment with ID ${id} not found`,
+        });
+      }
+
+      const url = await presignedGetUrl(attachment.path);
+
+      return {
+        ...attachment,
+        url,
+      };
     }),
 });

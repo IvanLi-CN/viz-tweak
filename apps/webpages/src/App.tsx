@@ -7,22 +7,12 @@ import { trpc } from "./helpers/trpc.ts";
 
 function App() {
   const [queryClient] = useState(() => new QueryClient());
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: "/trpc",
-        }),
-      ],
-    }),
-  );
+
   return (
     <Suspense fallback="Loading...">
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <QueryClientProvider client={queryClient}>
-          <Upload />
-        </QueryClientProvider>
-      </trpc.Provider>
+      <QueryClientProvider client={queryClient}>
+        <Upload />
+      </QueryClientProvider>
     </Suspense>
   );
 }

@@ -7,5 +7,5 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [daisyui, addIconSelectors(["fa"])],
+  plugins: [daisyui, addIconSelectors(["solar", "iconoir"])],
 } satisfies Config;

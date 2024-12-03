@@ -31,6 +31,20 @@ const configSchema = z.object({
   S3_REGION: z.string().default("us-east-1"),
   S3_PATH_STYLE: z.boolean({ coerce: true }).default(false),
   S3_KEY_PREFIX: z.string().default("/"),
+
+  IMAGOR_URL: z
+    .string()
+    .url()
+    .transform((url) => url.replace(/\/+$/, "")),
+  IMAGOR_SECRET: z.string().default("UNSAFE"),
+  IMAGOR_ALGORITHM: z.enum(["sha1", "sha256", "sha512"]).default("sha1"),
+  IMAGOR_SIGNER_TRUNCATE: z
+    .string()
+    .transform(Number)
+    .refine((n) => z.number().int().positive().safeParse(n).success, {
+      message: "IMAGOR_SIGNER_TRUNCATE must be a positive integer",
+    })
+    .optional(),
 });
 
 export const config = configSchema.parse(process.env);

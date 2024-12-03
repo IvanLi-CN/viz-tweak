@@ -19,7 +19,7 @@ export const presignedPutUrl = (
   return client.presignedUrl(
     "PUT",
     config.S3_BUCKET_NAME,
-    `${config.S3_KEY_PREFIX}/${key}`,
+    `${config.S3_KEY_PREFIX}${key}`,
     60,
     uploadId && partNumber
       ? { uploadId, partNumber: partNumber.toString() }
@@ -30,7 +30,7 @@ export const presignedPutUrl = (
 export const presignedGetUrl = (key: string) => {
   return client.presignedGetObject(
     config.S3_BUCKET_NAME,
-    `${config.S3_KEY_PREFIX}/${key}`,
+    `${config.S3_KEY_PREFIX}${key}`,
     60,
   );
 };
@@ -38,7 +38,7 @@ export const presignedGetUrl = (key: string) => {
 export const initiateMultipartUpload = (key: string, mime?: string | null) => {
   return client.initiateNewMultipartUpload(
     config.S3_BUCKET_NAME,
-    `${config.S3_KEY_PREFIX}/${key}`,
+    `${config.S3_KEY_PREFIX}${key}`,
     {
       "content-type": mime || "application/octet-stream",
     },
@@ -55,7 +55,7 @@ export const completeMultipartUpload = (
 ) => {
   return client.completeMultipartUpload(
     config.S3_BUCKET_NAME,
-    `${config.S3_KEY_PREFIX}/${key}`,
+    `${config.S3_KEY_PREFIX}${key}`,
     uploadId,
     parts,
   );
@@ -64,7 +64,7 @@ export const completeMultipartUpload = (
 export const abortMultipartUpload = (key: string, uploadId: string) => {
   return client.abortMultipartUpload(
     config.S3_BUCKET_NAME,
-    `${config.S3_KEY_PREFIX}/${key}`,
+    `${config.S3_KEY_PREFIX}${key}`,
     uploadId,
   );
 };
@@ -72,6 +72,6 @@ export const abortMultipartUpload = (key: string, uploadId: string) => {
 export const removeIncompleteMultipartUpload = (key: string) => {
   return client.removeIncompleteUpload(
     config.S3_BUCKET_NAME,
-    `${config.S3_KEY_PREFIX}/${key}`,
+    `${config.S3_KEY_PREFIX}${key}`,
   );
 };

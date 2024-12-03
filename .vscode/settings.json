@@ -1,5 +1,5 @@
 {
-  "cSpell.words": ["daisyui", "milliamps"],
+  "cSpell.words": ["daisyui", "imagor", "milliamps"],
   "i18n-ally.localesPaths": ["public/locales"],
   "i18n-ally.keystyle": "flat",
   "i18n-ally.enabledFrameworks": ["react-i18next"],
@@ -16,4 +16,10 @@
     "quickfix.biome": "explicit",
     "source.organizeImports.biome": "explicit",
   },
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true,
+  },
+  "javascript.experimental.updateImportsOnPaste": true,
+  "javascript.preferences.importModuleSpecifierEnding": "auto",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
 }

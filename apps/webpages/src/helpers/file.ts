@@ -1,4 +1,4 @@
-const CHUNK_SIZE = 1024 * 1024; // 1MB
+const CHUNK_SIZE = 5 * 1024 * 1024; // 1MB
 
 export const getExtension = (filename: string) => {
   const arr = filename.replace(/^.*\./, "").split(".");

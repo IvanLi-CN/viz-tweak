@@ -14,7 +14,9 @@
     "db:gen": "bun --filter=\"./apps/server\" run --no-truncate db:gen",
     "db:studio": "bun --filter=\"./apps/server\" run --no-truncate db:studio"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
   "dependencies": {
     "ky": "^1.7.2",
     "p-limit": "^6.1.0"

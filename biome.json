@@ -51,7 +51,8 @@
       "**/build",
       "**/dist",
       "**/public",
-      "tsconfig.*"
+      "tsconfig.*",
+      "**/routeTree.gen.ts"
     ],
     "ignoreUnknown": true
   },
