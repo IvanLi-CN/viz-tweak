@@ -1,6 +1,6 @@
 import { extname } from "node:path";
 import { TRPCError, initTRPC } from "@trpc/server";
-import { count, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { AttachmentStatus, attachments } from "../../db/schema.ts";
@@ -23,7 +23,7 @@ export const attachmentsRouter = t.router({
         filename: z.string(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const { mime, filename } = input;
 
       const id = await (async () => {
@@ -61,7 +61,7 @@ export const attachmentsRouter = t.router({
 
   initiateMultipart: t.procedure
     .input(z.object({ id: z.string() }))
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const id = input.id;
 
       const attachment = await db
@@ -99,7 +99,7 @@ export const attachmentsRouter = t.router({
         partNumber: z.number().int().positive(),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const { id, uploadId, partNumber } = input;
 
       const attachment = await db.query.attachments.findFirst({
@@ -181,7 +181,7 @@ export const attachmentsRouter = t.router({
 
   get: t.procedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input }) => {
       const id = input.id;
       const attachment = await db.query.attachments.findFirst({
         where: eq(attachments.id, id),

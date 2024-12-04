@@ -18,7 +18,7 @@ type ChunkStatus = "pending" | "done" | "error";
 const Upload: FC = () => {
   const navigate = useNavigate();
 
-  const [chunks, setChunks] = useState<(Chunk & { status: ChunkStatus })[]>([]);
+  const [_chunks, setChunks] = useState<(Chunk & { status: ChunkStatus })[]>([]);
 
   const updateChunk = useCallback((number: number, status: ChunkStatus) => {
     setChunks((prev) =>

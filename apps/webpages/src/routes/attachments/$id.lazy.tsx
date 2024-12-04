@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createLazyFileRoute } from "@tanstack/react-router";
 import clsx from "clsx";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CustomShare, {} from "../../components/CustomShare.tsx";
 import Header from "../../components/Header.tsx";
 import { ShareUrl } from "../../components/ShareUrl.tsx";

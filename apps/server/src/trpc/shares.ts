@@ -18,7 +18,7 @@ export const sharesRouter = t.router({
         options: shareOptionsSchema,
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input }) => {
       const { attachmentId, options } = input;
 
       const attachment = await db.query.attachments.findFirst({
@@ -90,7 +90,7 @@ export const sharesRouter = t.router({
         attachmentId: z.string(),
       }),
     )
-    .query(async ({ input, ctx }) => {
+    .query(async ({ input }) => {
       const { attachmentId } = input;
 
       const presets: {
