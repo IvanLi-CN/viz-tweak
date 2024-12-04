@@ -17,7 +17,7 @@ import { appRouter } from "./trpc/trpc.ts";
 const skipMigration = process.argv.includes("--skip-migration");
 
 if (!skipMigration) {
-  migrate(db, { migrationsFolder: join(import.meta.dir, "../migrations") });
+  migrate(db, { migrationsFolder: join(import.meta.dir, "../drizzle") });
 }
 
 const app = new Hono();
