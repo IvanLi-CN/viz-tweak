@@ -4,7 +4,6 @@ import "./tailwind.css";
 import "./index.css";
 import invariant from "tiny-invariant";
 import "./i18n.ts";
-import "chart.js/auto";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { trpc } from "./helpers/trpc.ts";
 import { routeTree } from "./routeTree.gen";
