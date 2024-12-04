@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import clsx from "clsx";
-import ky from "ky";
 import pLimit from "p-limit";
 import {
   type ChangeEventHandler,

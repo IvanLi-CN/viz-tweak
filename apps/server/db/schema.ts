@@ -62,16 +62,3 @@ export const attachments_tags = sqliteTable(
     ),
   }),
 );
-
-export const shares = sqliteTable("shares", {
-  id: text("id").primaryKey(),
-  attachmentId: text("attachment_id")
-    .notNull()
-    .references(() => attachments.id, { onDelete: "cascade" }),
-  path: text("path").notNull().unique(),
-  size: integer("size").notNull(),
-  metadata: text("metadata", { mode: "json" }).default("{}"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-  lastAccessedAt: integer("last_accessed_at", { mode: "timestamp" }),
-  lastKeptAliveAt: integer("last_kept_alive_at", { mode: "timestamp" }),
-});
