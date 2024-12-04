@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 
+import { join } from "node:path";
 import { trpcServer } from "@hono/trpc-server";
 import { zValidator } from "@hono/zod-validator";
 import { eq } from "drizzle-orm";
@@ -16,7 +17,7 @@ import { appRouter } from "./trpc/trpc.ts";
 const skipMigration = process.argv.includes("--skip-migration");
 
 if (!skipMigration) {
-  migrate(db, { migrationsFolder: "./migrations" });
+  migrate(db, { migrationsFolder: join(import.meta.dir, "../migrations") });
 }
 
 const app = new Hono();
