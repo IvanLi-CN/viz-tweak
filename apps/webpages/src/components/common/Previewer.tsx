@@ -71,7 +71,7 @@ const Previewer: FC<PreviewerProps> = ({
           "bg-base-200 w-full flex items-center flex-auto h-1/2",
           "transition-all duration-500",
           {
-            "blur-3xl": isLoading,
+            "blur-3xl duration-75": isLoading,
           },
           "relative",
         )}

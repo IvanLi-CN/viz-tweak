@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { AttachmentStatus, attachments } from "../../db/schema.ts";
 import { db } from "../db.ts";
+import { getImagorUrl } from "../helpers/imagor.ts";
 import {
   completeMultipartUpload,
   initiateMultipartUpload,
@@ -135,7 +136,7 @@ export const attachmentsRouter = t.router({
         ),
       }),
     )
-    .mutation(async ({ input, ctx }) => {
+    .mutation(async ({ input }) => {
       const { id, uploadId, parts } = input;
 
       const attachment = await db.query.attachments.findFirst({
@@ -157,13 +158,24 @@ export const attachmentsRouter = t.router({
 
       await completeMultipartUpload(attachment.path, uploadId, parts);
 
+      const url = await presignedGetUrl(attachment.path);
+
+      const size = await fetch(url, {
+        method: "HEAD",
+      })
+        .then((res) => res.headers.get("content-length"))
+        .then((size) => Number(size) || 0);
+
+      const metadata = await fetch(
+        getImagorUrl(`meta/${encodeURIComponent(url)}`),
+      ).then((res) => res.json());
+
       const updated = await db
         .update(attachments)
-        .set({ status: AttachmentStatus.Uploaded })
+        .set({ status: AttachmentStatus.Uploaded, metadata, size })
         .where(eq(attachments.id, id))
         .returning();
 
-      const url = await presignedGetUrl(attachment.path);
       return { updated, url };
     }),
 

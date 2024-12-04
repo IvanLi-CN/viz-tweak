@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, createLazyFileRoute } from "@tanstack/react-router";
 import clsx from "clsx";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import CustomShare, {} from "../../components/CustomShare.tsx";
 import Header from "../../components/Header.tsx";
 import { ShareUrl } from "../../components/ShareUrl.tsx";
@@ -20,7 +20,7 @@ function RouteComponent() {
   const navigation = Route.useNavigate();
 
   const [activeTab, setActiveTab] = useState(
-    window.location.hash as "#presets" | "#custom",
+    (window.location.hash || "#presets") as "#presets" | "#custom",
   );
 
   useEffect(() => {
@@ -37,9 +37,27 @@ function RouteComponent() {
   const { data: shareUrl } = useQuery({
     queryKey: ["generateShareUrl", options],
     queryFn: async () => {
+
+      const format = (() => {
+        const [type, format] = (attachment.mime ?? "").split("/");
+
+        if (
+          type === "image" &&
+          !["webp", "png", "jpeg", "gif"].includes(format)
+        ) {
+          return "webp";
+        }
+
+        return options.format;
+      })();
+
+
       return await trpc.shares.generateUrl.query({
         attachmentId: attachment.id,
-        options,
+        options: {
+          ...options,
+          format,
+        },
       });
     },
   });
@@ -64,6 +82,7 @@ function RouteComponent() {
     [navigation],
   );
 
+
   return (
     <>
       <Header />
@@ -79,7 +98,7 @@ function RouteComponent() {
               mime={attachment.mime}
               url={shareUrl}
               fallbackUrl={attachment.url}
-              className="h-96  m-auto"
+              className="h-96 m-auto"
             />
           </div>
           <div className="max-w-7xl my-4 mx-auto">

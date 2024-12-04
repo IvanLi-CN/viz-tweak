@@ -10,6 +10,7 @@ const configSchema = z.object({
       message: "PORT must be between 1 and 65535",
     })
     .default("24113"),
+  SERVER_URL: z.string().url().default("http://localhost:24113"),
 
   DB_PATH: z
     .string()

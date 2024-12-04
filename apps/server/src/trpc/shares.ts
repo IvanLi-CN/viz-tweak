@@ -1,34 +1,21 @@
-import { createHmac } from "node:crypto";
 import { TRPCError, initTRPC } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { attachments } from "../../db/schema.ts";
 import { config } from "../config.ts";
 import { db } from "../db.ts";
+import { getImagorUrl } from "../helpers/imagor.ts";
 import { presignedGetUrl } from "../s3.ts";
+import { shareOptionsSchema } from "../schemas/share-options.ts";
 
 const t = initTRPC.create();
-
-const imagorOptionsSchema = z.object({
-  width: z.number().int().positive().optional(),
-  height: z.number().int().positive().optional(),
-  orient: z
-    .union([z.literal(0), z.literal(90), z.literal(180), z.literal(270)])
-    .optional(),
-  fitIn: z.boolean().default(true),
-  smart: z.boolean().default(true),
-  format: z
-    .enum(["jpeg", "png", "gif", "webp", "tiff", "avif", "jp2"])
-    .optional(),
-  preview: z.boolean().default(true),
-});
 
 export const sharesRouter = t.router({
   generateUrl: t.procedure
     .input(
       z.object({
         attachmentId: z.string(),
-        options: imagorOptionsSchema,
+        options: shareOptionsSchema,
       }),
     )
     .query(async ({ input, ctx }) => {
@@ -94,18 +81,7 @@ export const sharesRouter = t.router({
 
       const imagorPath = imagorPathList.join("/");
 
-      const hash =
-        config.IMAGOR_SECRET === "UNSAFE"
-          ? "UNSAFE"
-          : createHmac(config.IMAGOR_ALGORITHM, config.IMAGOR_SECRET)
-              .update(imagorPath)
-              .digest("base64")
-              .slice(0, config.IMAGOR_SIGNER_TRUNCATE)
-              .replaceAll(/\+/g, "-")
-              .replaceAll(/\//g, "_");
-      const imagorUrl = `${config.IMAGOR_URL}/${hash}/${imagorPath}`;
-
-      return imagorUrl;
+      return getImagorUrl(imagorPath);
     }),
 
   presets: t.procedure
@@ -119,21 +95,21 @@ export const sharesRouter = t.router({
 
       const presets: {
         name: string;
-        options: z.infer<typeof imagorOptionsSchema>;
+        options: z.infer<typeof shareOptionsSchema>;
       }[] = [
         {
           name: "Original",
-          options: imagorOptionsSchema.parse({}),
+          options: shareOptionsSchema.parse({}),
         },
         {
           name: "Webp",
-          options: imagorOptionsSchema.parse({
+          options: shareOptionsSchema.parse({
             format: "webp",
           }),
         },
         {
           name: "1K",
-          options: imagorOptionsSchema.parse({
+          options: shareOptionsSchema.parse({
             width: 1024,
             height: 1024,
             format: "webp",
@@ -141,7 +117,7 @@ export const sharesRouter = t.router({
         },
         {
           name: "2K",
-          options: imagorOptionsSchema.parse({
+          options: shareOptionsSchema.parse({
             width: 2048,
             height: 2048,
             format: "webp",
@@ -149,7 +125,7 @@ export const sharesRouter = t.router({
         },
         {
           name: "4K",
-          options: imagorOptionsSchema.parse({
+          options: shareOptionsSchema.parse({
             width: 4096,
             height: 4096,
             format: "webp",
@@ -157,7 +133,7 @@ export const sharesRouter = t.router({
         },
         {
           name: "Square",
-          options: imagorOptionsSchema.parse({
+          options: shareOptionsSchema.parse({
             width: 1024,
             height: 1024,
             fitIn: false,
@@ -173,15 +149,18 @@ export const sharesRouter = t.router({
             preset,
           ): Promise<{
             name: string;
-            options: z.infer<typeof imagorOptionsSchema>;
+            options: z.infer<typeof shareOptionsSchema>;
             url: string;
           }> => {
+            const url = new URL(`s/${attachmentId}`, config.SERVER_URL);
+
+            for (const [key, value] of Object.entries(preset.options)) {
+              url.searchParams.set(key, value.toString());
+            }
+
             return {
               ...preset,
-              url: await sharesRouter.createCaller({ ctx }).generateUrl({
-                attachmentId,
-                options: preset.options,
-              }),
+              url: url.href,
             };
           },
         ),

@@ -10,7 +10,13 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 24114,
       proxy: {
-        "/trpc": {
+        "/trpc/": {
+          target: env.API_URL || "http://localhost:24113",
+          changeOrigin: true,
+          ws: true,
+          timeout: 0,
+        },
+        "/s/": {
           target: env.API_URL || "http://localhost:24113",
           changeOrigin: true,
           ws: true,
