@@ -12,6 +12,7 @@ import { attachments } from "../db/schema.ts";
 import { db } from "./db.ts";
 import { logger } from "./logger.ts";
 import { presignedGetUrl } from "./s3.ts";
+import { exit$ } from "./shared.ts";
 import { appRouter } from "./trpc/trpc.ts";
 
 const skipMigration = process.argv.includes("--skip-migration");
@@ -95,7 +96,6 @@ app.get("/s/:filename", zValidator("query", shareOptionsSchema), async (c) => {
   });
 });
 
-
 app.get(
   "/*",
   serveStatic({
@@ -113,4 +113,16 @@ app.get(
   }),
 );
 
-export default app;
+const server = Bun.serve({
+  port: process.env.PORT ? Number.parseInt(process.env.PORT) : undefined,
+  fetch: app.fetch,
+});
+
+exit$.subscribe(() => {
+  logger.warn("Stopping server");
+  server.stop().then(() => {
+    logger.info("Server stopped");
+  });
+});
+
+logger.info(`Server running on ${server.url}`);

@@ -25,7 +25,8 @@ COPY ./apps/webpages/dist ../webpages/dist
 
 # run the app
 USER bun
-ENV DB_PATH="/home/bun/.power-desk/db.sqlite"
+ENV DB_PATH="/home/bun/.viz-tweak/db.sqlite"
 ENV PORT=24113
 EXPOSE 24113/tcp
+VOLUME [ "/home/bun/.viz-tweak" ]
 ENTRYPOINT [ "bun", "run", "./src/index.ts" ]
