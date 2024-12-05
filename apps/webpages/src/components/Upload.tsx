@@ -5,6 +5,7 @@ import clsx from "clsx";
 import pLimit from "p-limit";
 import {
   type ChangeEventHandler,
+  type ClipboardEventHandler,
   type DragEventHandler,
   type FC,
   type MouseEventHandler,
@@ -209,6 +210,35 @@ const Upload: FC = () => {
     dropRef.current?.classList.add("bg-primary/20");
   };
 
+  const handlePaste: ClipboardEventHandler<HTMLElement> = (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    const items = ev.clipboardData?.items;
+
+    if (!items) {
+      return;
+    }
+
+    const item = items[0];
+
+    if (!item) {
+      return;
+    }
+
+    if (item.kind !== "file") {
+      return;
+    }
+
+    const file = item.getAsFile();
+
+    if (!file) {
+      return;
+    }
+
+    setFile(file);
+  };
+
   return (
     <label
       className={clsx(
@@ -225,6 +255,7 @@ const Upload: FC = () => {
       onDragLeave={handleDragLeave}
       onDragEnter={handleDragEnter}
       onDrop={handleDrop}
+      onPaste={handlePaste}
     >
       {blobUrl && isPending && (
         <div className="p-4 absolute top-0 left-0 w-full h-full text-center">
@@ -321,3 +352,4 @@ const Upload: FC = () => {
 };
 
 export default Upload;
+
