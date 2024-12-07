@@ -1,3 +1,4 @@
+import { Link, useNavigate } from "@tanstack/react-router";
 import clsx from "clsx";
 import { useAtom } from "jotai";
 import {
@@ -10,20 +11,38 @@ import {
   useRef,
   useState,
 } from "react";
-import { chunksAtom, fileAtom } from "../../store/upload.ts";
 import { useUpload } from "../hooks/useUpload.tsx";
+import {
+  chunksAtom,
+  fileAtom,
+  uploadErrorAtom,
+  uploadStatusAtom,
+  uploadedAttachmentInfoAtom,
+} from "../store/upload.ts";
 
 const Upload: FC = () => {
+  const navigate = useNavigate();
+
   const [chunks] = useAtom(chunksAtom);
   const [blobUrl, setBlobUrl] = useState<string>();
   const [file] = useAtom(fileAtom);
+  const [status] = useAtom(uploadStatusAtom);
+  const [error] = useAtom(uploadErrorAtom);
+  const [attachmentInfo] = useAtom(uploadedAttachmentInfoAtom);
   const [imageDimensions, setImageDimensions] = useState<{
     width: number;
     height: number;
   }>();
   const dropRef = useRef<HTMLLabelElement>(null);
-  const { createAttachment, isPending, error, isPaused, isSuccess, isIdle } =
-    useUpload();
+  const createAttachment = useUpload();
+
+  useEffect(() => {
+    if (attachmentInfo?.id) {
+      navigate({
+        to: `/attachments/${attachmentInfo.id}`,
+      });
+    }
+  }, [attachmentInfo, navigate]);
 
   useEffect(() => {
     if (file) {
@@ -75,6 +94,8 @@ const Upload: FC = () => {
 
   const handleDragOver: DragEventHandler<HTMLElement> = (ev) => {
     ev.preventDefault();
+    ev.stopPropagation();
+    ev.dataTransfer.dropEffect = "copy";
   };
 
   const handleDragLeave: DragEventHandler<HTMLElement> = () => {
@@ -82,10 +103,9 @@ const Upload: FC = () => {
   };
 
   const handleDragEnter: DragEventHandler<HTMLElement> = (ev) => {
-    console.log(ev);
     ev.preventDefault();
-    ev.dataTransfer.dropEffect = "copy";
     ev.stopPropagation();
+    ev.dataTransfer.dropEffect = "copy";
     dropRef.current?.classList.add("bg-primary/20");
   };
 
@@ -136,7 +156,7 @@ const Upload: FC = () => {
       onDrop={handleDrop}
       onPaste={handlePaste}
     >
-      {blobUrl && isPending && (
+      {blobUrl && status !== "idle" && (
         <div className="p-4 absolute top-0 left-0 w-full h-full text-center">
           <img
             src={blobUrl}
@@ -200,24 +220,21 @@ const Upload: FC = () => {
           <div>{error.message}</div>
         </div>
       )}
-      {isPaused && (
-        <div className="p-4">
-          <div>Paused</div>
-        </div>
-      )}
-      {isIdle && (
+      {status === "idle" && (
         <div className="p-4 flex justify-center items-center">
-          <div>{isPending ? "Uploading..." : "Upload"}</div>
+          <div>Drag and drop or click to upload or paste a file.</div>
         </div>
       )}
-      {isPending && (
+      {status === "pending" && (
         <div className="p-4 flex justify-center items-center min-h-96">
           <div>Uploading...</div>
         </div>
       )}
-      {isSuccess && (
+      {status === "done" && attachmentInfo && (
         <div className="p-4 flex justify-center items-center min-h-96">
-          <div>Uploaded</div>
+          <div>
+            Uploaded. <Link to={`/attachments/${attachmentInfo.id}`}>View</Link>
+          </div>
         </div>
       )}
       <input

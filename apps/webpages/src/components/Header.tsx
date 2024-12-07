@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import UploadLink from "./UploadLink.tsx";
 
 const Header: FC = () => {
   return (
@@ -12,7 +13,7 @@ const Header: FC = () => {
         <div className="flex-none">
           <ul className="menu menu-horizontal px-1">
             <li>
-              <a>Link</a>
+              <UploadLink />
             </li>
             <li>
               <details>

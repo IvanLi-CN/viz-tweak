@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import * as React from "react";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import type { trpc } from "../helpers/trpc.ts";
 
 export interface RouterAppContext {
@@ -26,6 +26,38 @@ const TanStackRouterDevtools =
 
 function RootComponent() {
   const [queryClient] = useState(() => new QueryClient());
+
+  // Prevent browser from opening dropped files in new tab
+  useEffect(() => {
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!e.dataTransfer) {
+        return;
+      }
+      e.dataTransfer.dropEffect = "none";
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!e.dataTransfer) {
+        return;
+      }
+      e.dataTransfer.dropEffect = "none";
+    };
+
+    document.addEventListener("dragover", handleDragOver);
+    document.addEventListener("drop", handleDrop);
+
+    return () => {
+      document.removeEventListener("dragover", handleDragOver);
+      document.removeEventListener("drop", handleDrop);
+    };
+  }, []);
+
   return (
     <Suspense fallback="Loading...">
       <QueryClientProvider client={queryClient}>

@@ -1,22 +1,24 @@
-import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
 import axios from "axios";
 import { useAtom } from "jotai";
 import pLimit from "p-limit";
 import { useCallback } from "react";
+import { type Chunk, getChunks } from "../helpers/file.ts";
+import { trpc } from "../helpers/trpc.ts";
 import {
   type UploadChunkStatus,
   chunksAtom,
   fileAtom,
-} from "../../store/upload.ts";
-import { type Chunk, getChunks } from "../helpers/file.ts";
-import { trpc } from "../helpers/trpc.ts";
+  uploadErrorAtom,
+  uploadStatusAtom,
+  uploadedAttachmentInfoAtom,
+} from "../store/upload.ts";
 
 export const useUpload = () => {
-  const navigate = useNavigate();
-
   const [, setFile] = useAtom(fileAtom);
   const [, setChunks] = useAtom(chunksAtom);
+  const [, setStatus] = useAtom(uploadStatusAtom);
+  const [, setError] = useAtom(uploadErrorAtom);
+  const [, setAttachmentInfo] = useAtom(uploadedAttachmentInfoAtom);
 
   const updateChunk = useCallback(
     (number: number, status: UploadChunkStatus, progress?: number) => {
@@ -33,123 +35,115 @@ export const useUpload = () => {
     [setChunks],
   );
 
-  const {
-    mutateAsync: createAttachment,
-    isPending,
-    isIdle,
-    isPaused,
-    isSuccess,
-    error,
-  } = useMutation({
-    mutationKey: ["crate-attachment"],
-    mutationFn: async (file: File | undefined) => {
-      setFile(file);
-      setChunks([]);
+  const createAttachment = useCallback(
+    async (file: File | undefined) => {
+      try {
+        setFile(file);
+        setChunks([]);
+        setAttachmentInfo(undefined);
 
-      if (!file) {
-        return;
-      }
+        if (!file) {
+          setStatus("idle");
+          return;
+        }
 
-      const mime = file.type;
+        setStatus("pending");
+        const mime = file.type;
 
-      const { id, url } = await trpc.attachments.create.mutate({
-        filename: file.name,
-        mime,
-      });
-
-      const { uploadId } = await trpc.attachments.initiateMultipart.mutate({
-        id,
-      });
-
-      const chunks = getChunks(file).map((c) => ({
-        ...c,
-        status: "pending" as UploadChunkStatus,
-        progress: 0,
-      }));
-      setChunks(chunks);
-
-      const uploadChunk = async ({ part, blob }: Chunk) => {
-        const { url } = await trpc.attachments.presignedPartUrl.mutate({
-          id,
-          uploadId,
-          partNumber: part,
+        const { id, url } = await trpc.attachments.create.mutate({
+          filename: file.name,
+          mime,
         });
-        updateChunk(part, "pending", 0);
 
-        const etag = await axios
-          .put(url, blob, {
-            headers: {
-              "Content-Type": "application/octet-stream",
-            },
-            onUploadProgress: (ev) => {
-              updateChunk(part, "pending", ev.total ? ev.loaded / ev.total : 0);
-            },
-          })
-          .then((req) => {
-            return req.headers.etag ?? undefined;
+        const { uploadId } = await trpc.attachments.initiateMultipart.mutate({
+          id,
+        });
+
+        const chunks = getChunks(file).map((c) => ({
+          ...c,
+          status: "pending" as UploadChunkStatus,
+          progress: 0,
+        }));
+        setChunks(chunks);
+
+        const uploadChunk = async ({ part, blob }: Chunk) => {
+          const { url } = await trpc.attachments.presignedPartUrl.mutate({
+            id,
+            uploadId,
+            partNumber: part,
           });
+          updateChunk(part, "pending", 0);
 
-        updateChunk(part, "done", 1);
+          const etag = await axios
+            .put(url, blob, {
+              headers: {
+                "Content-Type": "application/octet-stream",
+              },
+              onUploadProgress: (ev) => {
+                updateChunk(
+                  part,
+                  "pending",
+                  ev.total ? ev.loaded / ev.total : 0,
+                );
+              },
+            })
+            .then((req) => {
+              return req.headers.etag ?? undefined;
+            });
 
-        return { part, etag };
-      };
-      const limit = pLimit(2);
+          updateChunk(part, "done", 1);
 
-      // await Promise.all(
-      //   chunks.map((c, i) =>
-      //     limit(
-      //       () =>
-      //         new Promise<void>((resolve, reject) => {
-      //           let p = 0;
-      //           const intervalId = setInterval(() => {
-      //             p += 0.003;
-      //             updateChunk(c.part, "pending", p);
-      //           }, 100);
-      //           setTimeout(() => {
-      //             clearInterval(intervalId);
-      //             if (i === chunks.length - 1) {
-      //               reject(new Error("All chunks uploaded, but mock error"));
-      //             } else {
-      //               resolve();
-      //             }
-      //           }, 30 * 1000);
-      //         }),
-      //     ),
-      //   ),
-      // );
+          return { part, etag };
+        };
+        const limit = pLimit(2);
 
-      const parts = await Promise.all(
-        chunks.map((c) => limit(() => uploadChunk(c))),
-      );
+        // await Promise.all(
+        //   chunks.map((c, i) =>
+        //     limit(
+        //       () =>
+        //         new Promise<void>((resolve, reject) => {
+        //           let p = 0;
+        //           const intervalId = setInterval(() => {
+        //             p += 0.003;
+        //             updateChunk(c.part, "pending", p);
+        //           }, 100);
+        //           setTimeout(() => {
+        //             clearInterval(intervalId);
+        //             if (i === chunks.length - 1) {
+        //               reject(new Error("All chunks uploaded, but mock error"));
+        //             } else {
+        //               resolve();
+        //             }
+        //           }, 30 * 1000);
+        //         }),
+        //     ),
+        //   ),
+        // );
 
-      return await trpc.attachments.completeMultipart
-        .mutate({
-          id,
-          uploadId,
-          parts,
-        })
-        .then(() => ({ id, url }));
-    },
-    onSuccess: (data) => {
-      // clean up
+        const parts = await Promise.all(
+          chunks.map((c) => limit(() => uploadChunk(c))),
+        );
 
-      setFile(undefined);
-      setChunks([]);
+        const result = await trpc.attachments.completeMultipart
+          .mutate({
+            id,
+            uploadId,
+            parts,
+          })
+          .then(() => ({ id, url }));
 
-      if (data) {
-        navigate({
-          to: `/attachments/${data.id}`,
-        });
+        setAttachmentInfo(result);
+        setStatus("done");
+
+        return result;
+      } catch (e) {
+        setStatus("error");
+        setError(e as Error);
+        throw e;
       }
     },
-  });
+    [setFile, setChunks, updateChunk, setStatus, setError, setAttachmentInfo],
+  );
 
-  return {
-    createAttachment,
-    isPending,
-    isIdle,
-    isPaused,
-    isSuccess,
-    error,
-  };
+  return createAttachment;
 };

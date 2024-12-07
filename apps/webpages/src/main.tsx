@@ -8,6 +8,9 @@ import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { trpc } from "./helpers/trpc.ts";
 import { routeTree } from "./routeTree.gen";
 
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+
 // Create a new router instance
 const router = createRouter({
   routeTree,
@@ -29,14 +32,13 @@ declare module "@tanstack/react-router" {
   }
 }
 
-
 const rootEl = document.getElementById("root");
-
 
 invariant(rootEl, "Root element not found");
 
 createRoot(rootEl).render(
   <StrictMode>
     <RouterProvider router={router} />
+    <ToastContainer />
   </StrictMode>,
 );
