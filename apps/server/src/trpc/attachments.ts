@@ -1,6 +1,6 @@
 import { extname } from "node:path";
 import { TRPCError, initTRPC } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { z } from "zod";
 import { AttachmentStatus, attachments } from "../../db/schema.ts";
@@ -12,18 +12,19 @@ import {
   presignedGetUrl,
   presignedPutUrl,
 } from "../s3.ts";
+import { protectedProcedure } from "./middlewares/authorization.ts";
 
 const t = initTRPC.create();
 
 export const attachmentsRouter = t.router({
-  create: t.procedure
+  create: protectedProcedure
     .input(
       z.object({
         mime: z.string(),
         filename: z.string(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { mime, filename } = input;
 
       const id = await (async () => {
@@ -49,7 +50,7 @@ export const attachmentsRouter = t.router({
         path,
         mime,
         status: AttachmentStatus.Created,
-        owner: "anonymous",
+        owner: ctx.user,
         name: filename,
         filename,
         size: 0,
@@ -59,7 +60,7 @@ export const attachmentsRouter = t.router({
       return { id, url };
     }),
 
-  initiateMultipart: t.procedure
+  initiateMultipart: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       const id = input.id;
@@ -91,7 +92,7 @@ export const attachmentsRouter = t.router({
       return { uploadId };
     }),
 
-  presignedPartUrl: t.procedure
+  presignedPartUrl: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -99,11 +100,11 @@ export const attachmentsRouter = t.router({
         partNumber: z.number().int().positive(),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, uploadId, partNumber } = input;
 
       const attachment = await db.query.attachments.findFirst({
-        where: eq(attachments.id, id),
+        where: and(eq(attachments.id, id), eq(attachments.owner, ctx.user)),
       });
       if (!attachment) {
         throw new TRPCError({
@@ -123,7 +124,7 @@ export const attachmentsRouter = t.router({
       return { url };
     }),
 
-  completeMultipart: t.procedure
+  completeMultipart: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -136,11 +137,11 @@ export const attachmentsRouter = t.router({
         ),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input, ctx }) => {
       const { id, uploadId, parts } = input;
 
       const attachment = await db.query.attachments.findFirst({
-        where: eq(attachments.id, id),
+        where: and(eq(attachments.id, id), eq(attachments.owner, ctx.user)),
       });
       if (!attachment) {
         throw new TRPCError({
@@ -173,18 +174,18 @@ export const attachmentsRouter = t.router({
       const updated = await db
         .update(attachments)
         .set({ status: AttachmentStatus.Uploaded, metadata, size })
-        .where(eq(attachments.id, id))
+        .where(and(eq(attachments.id, id), eq(attachments.owner, ctx.user)))
         .returning();
 
       return { updated, url };
     }),
 
-  get: t.procedure
+  get: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const id = input.id;
       const attachment = await db.query.attachments.findFirst({
-        where: eq(attachments.id, id),
+        where: and(eq(attachments.id, id), eq(attachments.owner, ctx.user)),
       });
 
       if (!attachment) {

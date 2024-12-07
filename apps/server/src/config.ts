@@ -46,6 +46,12 @@ const configSchema = z.object({
       message: "IMAGOR_SIGNER_TRUNCATE must be a positive integer",
     })
     .optional(),
+
+  REMOTE_USER_HEADER: z
+    .string()
+    .transform((header) => header.toLowerCase())
+    .default("Remote-User"),
+  ALLOW_ANONYMOUS: z.boolean({ coerce: true }).default(false),
 });
 
 export const config = configSchema.parse(process.env);

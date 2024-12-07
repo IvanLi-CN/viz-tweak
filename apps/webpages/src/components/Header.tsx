@@ -1,7 +1,17 @@
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import type { FC } from "react";
+import { trpc } from "../helpers/trpc.ts";
 import UploadLink from "./UploadLink.tsx";
 
 const Header: FC = () => {
+  const { data: user } = useQuery({
+    queryKey: ["user", "me"],
+    queryFn: async () => {
+      return await trpc.users.whoami.query();
+    },
+  });
+
   return (
     <header>
       <div className="navbar bg-base-100">
@@ -17,13 +27,13 @@ const Header: FC = () => {
             </li>
             <li>
               <details>
-                <summary>Parent</summary>
+                <summary>{user?.name ?? "Anonymous"}</summary>
                 <ul className="bg-base-100 rounded-t-none p-2">
                   <li>
-                    <a>Link 1</a>
+                    <Link to="/">Link 1</Link>
                   </li>
                   <li>
-                    <a>Link 2</a>
+                    <Link to="/">Link 2</Link>
                   </li>
                 </ul>
               </details>

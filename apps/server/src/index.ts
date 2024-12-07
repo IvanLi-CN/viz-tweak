@@ -13,6 +13,7 @@ import { db } from "./db.ts";
 import { logger } from "./logger.ts";
 import { presignedGetUrl } from "./s3.ts";
 import { exit$ } from "./shared.ts";
+import { createContext } from "./trpc/context.ts";
 import { appRouter } from "./trpc/trpc.ts";
 
 const skipMigration = process.argv.includes("--skip-migration");
@@ -33,6 +34,7 @@ app.use(
   "/trpc/*",
   trpcServer({
     router: appRouter,
+    createContext,
   }),
 );
 
