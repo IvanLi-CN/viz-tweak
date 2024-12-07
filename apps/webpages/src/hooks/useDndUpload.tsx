@@ -24,6 +24,10 @@ export const useDndUpload = <ELEM extends HTMLElement>() => {
 
     navigate({
       to: "/upload",
+      state: (prev) => ({
+        ...prev,
+        reset: true,
+      }),
     });
     createAttachment(file);
   };
@@ -32,7 +36,6 @@ export const useDndUpload = <ELEM extends HTMLElement>() => {
     event.dataTransfer.dropEffect = "copy";
     dropRef.current?.classList.add("bg-primary/20");
 
-    console.log(dropRef.current?.classList);
     event.preventDefault();
     event.stopPropagation();
   };

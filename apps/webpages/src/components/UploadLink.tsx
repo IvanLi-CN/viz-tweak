@@ -7,7 +7,8 @@ const UploadLink = () => {
 
   return (
     <Link
-      to="/upload"
+      onClickCapture={() => dropRef.current?.classList.remove("bg-primary/20")}
+      to="/upload/reset"
       ref={dropRef}
       onDragEnter={onDragEnter}
       onDragLeave={onDragLeave}

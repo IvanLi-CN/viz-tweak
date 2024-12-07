@@ -1,8 +1,8 @@
 import { createLazyFileRoute } from "@tanstack/react-router";
-import Header from "../components/Header.tsx";
-import Upload from "../components/Upload.tsx";
+import Header from "../../components/Header.tsx";
+import Upload from "../../components/Upload.tsx";
 
-export const Route = createLazyFileRoute("/upload")({
+export const Route = createLazyFileRoute("/upload/")({
   component: RouteComponent,
 });
 

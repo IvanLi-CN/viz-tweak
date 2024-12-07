@@ -1,5 +1,5 @@
 {
-  "cSpell.words": ["daisyui", "imagor", "milliamps"],
+  "cSpell.words": ["daisyui", "iconify", "imagor", "milliamps", "Toastify"],
   "i18n-ally.localesPaths": ["public/locales"],
   "i18n-ally.keystyle": "flat",
   "i18n-ally.enabledFrameworks": ["react-i18next"],

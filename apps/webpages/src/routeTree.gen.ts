@@ -17,22 +17,29 @@ import { Route as AttachmentsIdImport } from './routes/attachments/$id'
 
 // Create Virtual Routes
 
-const UploadLazyImport = createFileRoute('/upload')()
 const IndexLazyImport = createFileRoute('/')()
+const UploadIndexLazyImport = createFileRoute('/upload/')()
+const UploadResetLazyImport = createFileRoute('/upload/reset')()
 
 // Create/Update Routes
-
-const UploadLazyRoute = UploadLazyImport.update({
-  id: '/upload',
-  path: '/upload',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/upload.lazy').then((d) => d.Route))
 
 const IndexLazyRoute = IndexLazyImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+
+const UploadIndexLazyRoute = UploadIndexLazyImport.update({
+  id: '/upload/',
+  path: '/upload/',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/upload/index.lazy').then((d) => d.Route))
+
+const UploadResetLazyRoute = UploadResetLazyImport.update({
+  id: '/upload/reset',
+  path: '/upload/reset',
+  getParentRoute: () => rootRoute,
+} as any).lazy(() => import('./routes/upload/reset.lazy').then((d) => d.Route))
 
 const AttachmentsIdRoute = AttachmentsIdImport.update({
   id: '/attachments/$id',
@@ -53,18 +60,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexLazyImport
       parentRoute: typeof rootRoute
     }
-    '/upload': {
-      id: '/upload'
-      path: '/upload'
-      fullPath: '/upload'
-      preLoaderRoute: typeof UploadLazyImport
-      parentRoute: typeof rootRoute
-    }
     '/attachments/$id': {
       id: '/attachments/$id'
       path: '/attachments/$id'
       fullPath: '/attachments/$id'
       preLoaderRoute: typeof AttachmentsIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/upload/reset': {
+      id: '/upload/reset'
+      path: '/upload/reset'
+      fullPath: '/upload/reset'
+      preLoaderRoute: typeof UploadResetLazyImport
+      parentRoute: typeof rootRoute
+    }
+    '/upload/': {
+      id: '/upload/'
+      path: '/upload'
+      fullPath: '/upload'
+      preLoaderRoute: typeof UploadIndexLazyImport
       parentRoute: typeof rootRoute
     }
   }
@@ -74,42 +88,47 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
-  '/upload': typeof UploadLazyRoute
   '/attachments/$id': typeof AttachmentsIdRoute
+  '/upload/reset': typeof UploadResetLazyRoute
+  '/upload': typeof UploadIndexLazyRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexLazyRoute
-  '/upload': typeof UploadLazyRoute
   '/attachments/$id': typeof AttachmentsIdRoute
+  '/upload/reset': typeof UploadResetLazyRoute
+  '/upload': typeof UploadIndexLazyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexLazyRoute
-  '/upload': typeof UploadLazyRoute
   '/attachments/$id': typeof AttachmentsIdRoute
+  '/upload/reset': typeof UploadResetLazyRoute
+  '/upload/': typeof UploadIndexLazyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/upload' | '/attachments/$id'
+  fullPaths: '/' | '/attachments/$id' | '/upload/reset' | '/upload'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/upload' | '/attachments/$id'
-  id: '__root__' | '/' | '/upload' | '/attachments/$id'
+  to: '/' | '/attachments/$id' | '/upload/reset' | '/upload'
+  id: '__root__' | '/' | '/attachments/$id' | '/upload/reset' | '/upload/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexLazyRoute: typeof IndexLazyRoute
-  UploadLazyRoute: typeof UploadLazyRoute
   AttachmentsIdRoute: typeof AttachmentsIdRoute
+  UploadResetLazyRoute: typeof UploadResetLazyRoute
+  UploadIndexLazyRoute: typeof UploadIndexLazyRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
-  UploadLazyRoute: UploadLazyRoute,
   AttachmentsIdRoute: AttachmentsIdRoute,
+  UploadResetLazyRoute: UploadResetLazyRoute,
+  UploadIndexLazyRoute: UploadIndexLazyRoute,
 }
 
 export const routeTree = rootRoute
@@ -123,18 +142,22 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/upload",
-        "/attachments/$id"
+        "/attachments/$id",
+        "/upload/reset",
+        "/upload/"
       ]
     },
     "/": {
       "filePath": "index.lazy.tsx"
     },
-    "/upload": {
-      "filePath": "upload.lazy.tsx"
-    },
     "/attachments/$id": {
       "filePath": "attachments/$id.tsx"
+    },
+    "/upload/reset": {
+      "filePath": "upload/reset.lazy.tsx"
+    },
+    "/upload/": {
+      "filePath": "upload/index.lazy.tsx"
     }
   }
 }

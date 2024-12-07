@@ -31,7 +31,7 @@ const Upload: FC = () => {
     width: number;
     height: number;
   }>();
-  
+
   const createAttachment = useUpload();
   const { onDrop, onDragEnter, onDragLeave, onDragOver, dropRef } =
     useDndUpload<HTMLLabelElement>();
@@ -73,7 +73,6 @@ const Upload: FC = () => {
 
     createAttachment(file);
   };
-
 
   return (
     <label
