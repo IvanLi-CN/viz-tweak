@@ -20,12 +20,12 @@ COPY ./apps/server/db ./db
 COPY ./apps/server/package.json .
 COPY ./apps/server/tsconfig.json .
 COPY ./apps/server/drizzle.config.ts .
+COPY ./entrypoint.ts .
 
 COPY ./apps/webpages/dist ../webpages/dist
 
 # run the app
-USER bun
 ENV DB_PATH="/home/bun/.viz-tweak/db.sqlite"
 ENV PORT=24113
 EXPOSE 24113/tcp
-ENTRYPOINT [ "bun", "run", "./src/index.ts" ]
+ENTRYPOINT ["bun", "run", "./entrypoint.ts"]
