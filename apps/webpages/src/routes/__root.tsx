@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import * as React from "react";
 import { Suspense, useEffect, useState } from "react";
+import { PasteUpload } from "../components/PasteUpload.tsx";
 import type { trpc } from "../helpers/trpc.ts";
 
 export interface RouterAppContext {
@@ -63,6 +64,7 @@ function RootComponent() {
       <QueryClientProvider client={queryClient}>
         <Outlet />
         <TanStackRouterDevtools />
+        <PasteUpload />
       </QueryClientProvider>
     </Suspense>
   );

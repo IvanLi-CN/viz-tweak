@@ -3,14 +3,12 @@ import clsx from "clsx";
 import { useAtom } from "jotai";
 import {
   type ChangeEventHandler,
-  type ClipboardEventHandler,
-  type DragEventHandler,
   type FC,
   type MouseEventHandler,
   useEffect,
-  useRef,
   useState,
 } from "react";
+import { useDndUpload } from "../hooks/useDndUpload.tsx";
 import { useUpload } from "../hooks/useUpload.tsx";
 import {
   chunksAtom,
@@ -33,8 +31,10 @@ const Upload: FC = () => {
     width: number;
     height: number;
   }>();
-  const dropRef = useRef<HTMLLabelElement>(null);
+  
   const createAttachment = useUpload();
+  const { onDrop, onDragEnter, onDragLeave, onDragOver, dropRef } =
+    useDndUpload<HTMLLabelElement>();
 
   useEffect(() => {
     if (attachmentInfo?.id) {
@@ -74,69 +74,6 @@ const Upload: FC = () => {
     createAttachment(file);
   };
 
-  const handleDrop: DragEventHandler<HTMLElement> = (ev) => {
-    ev.preventDefault();
-
-    const files = Array.from(ev.dataTransfer.files);
-
-    if (!files.length) {
-      return;
-    }
-
-    const file = files[0];
-
-    if (!file) {
-      return;
-    }
-
-    createAttachment(file);
-  };
-
-  const handleDragOver: DragEventHandler<HTMLElement> = (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    ev.dataTransfer.dropEffect = "copy";
-  };
-
-  const handleDragLeave: DragEventHandler<HTMLElement> = () => {
-    dropRef.current?.classList.remove("bg-primary/20");
-  };
-
-  const handleDragEnter: DragEventHandler<HTMLElement> = (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    ev.dataTransfer.dropEffect = "copy";
-    dropRef.current?.classList.add("bg-primary/20");
-  };
-
-  const handlePaste: ClipboardEventHandler<HTMLElement> = (ev) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-
-    const items = ev.clipboardData?.items;
-
-    if (!items) {
-      return;
-    }
-
-    const item = items[0];
-
-    if (!item) {
-      return;
-    }
-
-    if (item.kind !== "file") {
-      return;
-    }
-
-    const file = item.getAsFile();
-
-    if (!file) {
-      return;
-    }
-
-    createAttachment(file);
-  };
 
   return (
     <label
@@ -150,11 +87,10 @@ const Upload: FC = () => {
         "relative",
       )}
       ref={dropRef}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDragEnter={handleDragEnter}
-      onDrop={handleDrop}
-      onPaste={handlePaste}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
     >
       {blobUrl && status !== "idle" && (
         <div className="p-4 absolute top-0 left-0 w-full h-full text-center">
