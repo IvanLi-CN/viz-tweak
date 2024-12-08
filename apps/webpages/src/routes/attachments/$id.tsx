@@ -5,7 +5,7 @@ import { shareOptionsSchema } from "../../schemas/share-options.ts";
 
 export const Route = createFileRoute("/attachments/$id")({
   loader: ({ context: { queryClient }, params: { id } }) =>
-    queryClient.fetchQuery({
+    queryClient.ensureQueryData({
       queryKey: ["attachment", id],
       queryFn: () => trpc.attachments.get.query({ id }),
     }),

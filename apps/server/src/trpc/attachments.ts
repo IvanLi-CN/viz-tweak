@@ -301,7 +301,7 @@ export const attachmentsRouter = t.router({
       z.object({
         id: z.string(),
         name: z.string(),
-        description: z.string(),
+        description: z.string().nullable(),
         slug: z.string(),
       }),
     )
