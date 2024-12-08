@@ -96,16 +96,19 @@ export const sharesRouter = t.router({
       const presets: {
         name: string;
         options: z.infer<typeof shareOptionsSchema>;
+        url?: string;
       }[] = [
         {
           name: "Original",
           options: shareOptionsSchema.parse({}),
+          url: new URL(`s/${attachmentId}`, config.SERVER_URL).href,
         },
         {
           name: "Webp",
           options: shareOptionsSchema.parse({
             format: "webp",
           }),
+          url: new URL(`s/${attachmentId}.webp`, config.SERVER_URL).href,
         },
         {
           name: "1K",
@@ -152,15 +155,23 @@ export const sharesRouter = t.router({
             options: z.infer<typeof shareOptionsSchema>;
             url: string;
           }> => {
-            const url = new URL(`s/${attachmentId}`, config.SERVER_URL);
+            const url = (() => {
+              if (preset.url) {
+                return preset.url;
+              }
 
-            for (const [key, value] of Object.entries(preset.options)) {
-              url.searchParams.set(key, value.toString());
-            }
+              const url = new URL(`s/${attachmentId}`, config.SERVER_URL);
+
+              for (const [key, value] of Object.entries(preset.options)) {
+                url.searchParams.set(key, value.toString());
+              }
+
+              return url.href;
+            })();
 
             return {
               ...preset,
-              url: url.href,
+              url,
             };
           },
         ),
