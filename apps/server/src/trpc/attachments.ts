@@ -42,7 +42,7 @@ export const attachmentsRouter = t.router({
       })();
 
       const ext = extname(filename);
-      const path = `${id}${ext ? `.${ext}` : ""}`;
+      const path = `${id}${ext ? `${ext}` : ""}`;
       const url = await presignedPutUrl(path);
 
       await db.insert(attachments).values({

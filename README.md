@@ -16,7 +16,7 @@ VIZ Tweak is a web app for hosting media files. It supports dynamic conversion o
   - [ ] omit metadata
   - [ ] watermark
 - [ ] Convert video files using ffmpeg
-- [ ] Authorization
+- [x] Authorization
 - [ ] AI rename
 
 ## LICENSE
