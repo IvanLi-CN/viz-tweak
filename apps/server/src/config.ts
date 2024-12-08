@@ -2,6 +2,8 @@ import { isAbsolute, join } from "node:path";
 import { z } from "zod";
 
 const configSchema = z.object({
+  // Server
+
   PORT: z
     .string()
     .regex(/^\d+$/)
@@ -11,6 +13,8 @@ const configSchema = z.object({
     })
     .default("24113"),
   SERVER_URL: z.string().url().default("http://localhost:24113"),
+
+  // Database
 
   DB_PATH: z
     .string()
@@ -22,6 +26,8 @@ const configSchema = z.object({
 
       return join(process.cwd(), path);
     }),
+
+  // S3
 
   S3_ACCESS_KEY_ID: z.string(),
   S3_SECRET_ACCESS_KEY: z.string(),
@@ -47,11 +53,25 @@ const configSchema = z.object({
     })
     .optional(),
 
+  // Authentication
+
   REMOTE_USER_HEADER: z
     .string()
     .transform((header) => header.toLowerCase())
     .default("Remote-User"),
   ALLOW_ANONYMOUS: z.boolean({ coerce: true }).default(false),
+
+  // AI
+
+  AI_PROVIDER: z.enum(["xai"]).default("xai"),
+  AI_GENERATION_LANGUAGE: z
+    .string()
+    .default("en-US")
+    .describe("The language to use for AI-generated content."),
+  XAI_API_KEY: z.string().optional(),
+  OPENAI_API_KEY: z.string().optional(),
+  OPENAI_BASE_URL: z.string().optional(),
+  OPENAI_MODEL: z.enum(["gpt-4o-2024-08-06"]).default("gpt-4o-2024-08-06"),
 });
 
 export const config = configSchema.parse(process.env);

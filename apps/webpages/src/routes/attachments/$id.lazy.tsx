@@ -37,7 +37,6 @@ function RouteComponent() {
   const { data: shareUrl } = useQuery({
     queryKey: ["generateShareUrl", options],
     queryFn: async () => {
-
       const format = (() => {
         const [type, format] = (attachment.mime ?? "").split("/");
 
@@ -50,7 +49,6 @@ function RouteComponent() {
 
         return options.format;
       })();
-
 
       return await trpc.shares.generateUrl.query({
         attachmentId: attachment.id,
@@ -82,7 +80,6 @@ function RouteComponent() {
     [navigation],
   );
 
-
   return (
     <>
       <Header />
@@ -90,6 +87,7 @@ function RouteComponent() {
         <header className="mx-8 my-4">
           <h2 className="text-xl">{attachment.name}</h2>
           <small>{attachment.filename}</small>
+          <p className="my-2 font-light">{attachment.description}</p>
         </header>
 
         <section>
@@ -161,4 +159,3 @@ function RouteComponent() {
     </>
   );
 }
-

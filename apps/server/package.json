@@ -10,9 +10,12 @@
     "db:studio": "drizzle-kit studio --config ./drizzle.config.ts"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^1.0.7",
+    "@ai-sdk/xai": "^1.0.5",
     "@hono/trpc-server": "^0.3.4",
     "@hono/zod-validator": "^0.4.1",
     "@trpc/server": "^11.0.0-rc.648",
+    "ai": "^4.0.13",
     "drizzle-kit": "^0.29.1",
     "drizzle-orm": "^0.37.0",
     "hono": "^4.6.13",
