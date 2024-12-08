@@ -1,13 +1,8 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { createXai } from "@ai-sdk/xai";
 import { type CoreMessage, generateObject } from "ai";
 import { z } from "zod";
 import { config } from "./config.ts";
 import { logger } from "./logger.ts";
-
-const xai = createXai({
-  apiKey: config.XAI_API_KEY,
-});
 
 const openai = createOpenAI({
   apiKey: config.OPENAI_API_KEY,

@@ -5,7 +5,6 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { AttachmentStatus, attachments } from "../../db/schema.ts";
 import { generateImageInfo } from "../ai.ts";
-import { config } from "../config.ts";
 import { db } from "../db.ts";
 import { getImagorUrl } from "../helpers/imagor.ts";
 import {
