@@ -63,15 +63,24 @@ const configSchema = z.object({
 
   // AI
 
-  AI_PROVIDER: z.enum(["xai"]).default("xai"),
+  AI_PROVIDER: z.enum(["openai"]).default("openai"),
   AI_GENERATION_LANGUAGE: z
     .string()
     .default("en-US")
     .describe("The language to use for AI-generated content."),
-  XAI_API_KEY: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   OPENAI_BASE_URL: z.string().optional(),
-  OPENAI_MODEL: z.enum(["gpt-4o-2024-08-06"]).default("gpt-4o-2024-08-06"),
+  OPENAI_MODEL: z
+    .enum([
+      "o1-preview",
+      "o1-mini",
+      "gpt-4o-mini-2024-07-18",
+      "gpt-4o",
+      "gpt-4o-2024-05-13",
+      "gpt-4o-2024-08-06",
+      "gpt-4o-2024-11-20",
+    ])
+    .default("gpt-4o-2024-08-06"),
 });
 
 export const config = configSchema.parse(process.env);

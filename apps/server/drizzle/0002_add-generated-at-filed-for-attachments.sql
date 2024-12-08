@@ -1,0 +1,1 @@
+ALTER TABLE `attachments` ADD `generated_at` integer;

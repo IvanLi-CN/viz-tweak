@@ -11,25 +11,41 @@ const openai = createOpenAI({
 
 export const generateImageInfo = async (
   url: string,
-): Promise<{ name: string; description: string; slug: string }> => {
+): Promise<{ names: string[]; description: string; slugs: string[] }> => {
   try {
     const result = await generateObject({
-      model: openai("gpt-4o-2024-08-06"),
+      model: openai(config.OPENAI_MODEL),
       mode: "json",
       schema: z.object({
-        name: z
-          .string()
+        names: z
+          .array(
+            z
+              .string()
+              .describe(
+                `The title of the image in ${config.AI_GENERATION_LANGUAGE}. The title should be concise and highlight the main content of the image`,
+              ),
+          )
+          .max(7)
+          .min(3)
           .describe(
-            `The name of the image in ${config.AI_GENERATION_LANGUAGE}. The name should be concise and highlight the main content of the image`,
+            "Provide multiple differentiated proposals for me to choose from",
           ),
         description: z
           .string()
           .describe(
-            `A brief description of the image in ${config.AI_GENERATION_LANGUAGE}.`,
+            `A brief description of the image in ${config.AI_GENERATION_LANGUAGE}. If you recognize the subject of it, describe around that subject. If there is text in the picture, then it may be important. Please describe it in detail, but don't overstate how you feel about the picture.`,
           ),
-        slug: z
-          .string()
-          .describe("A URL-friendly version of the name in English."),
+        slugs: z
+          .array(
+            z
+              .string()
+              .describe("A URL-friendly version of the name in English."),
+          )
+          .max(7)
+          .min(3)
+          .describe(
+            "Provide multiple differentiated proposals for me to choose from",
+          ),
       }),
       messages: [
         {
@@ -52,13 +68,15 @@ export const generateImageInfo = async (
     logger.debug("Generated result: %s", result);
     return {
       ...result.object,
-      slug: result.object.slug
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, ""),
+      slugs: result.object.slugs.map((slug) =>
+        slug
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, ""),
+      ),
     };
   } catch (error) {
-    logger.error(error, "Failed to generate image info. %s");
+    logger.error(error, "Failed to generate image info");
 
     throw new Error(
       "Could not generate image information. Please check the URL or try again later.",

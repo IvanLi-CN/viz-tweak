@@ -32,6 +32,7 @@ export const attachments = sqliteTable("attachments", {
   owner: text("owner").notNull().default("anonymous"),
   size: integer("size").notNull(),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  generatedAt: integer("generated_at", { mode: "timestamp" }),
   lastAccessedAt: integer("last_accessed_at", { mode: "timestamp" }),
   lastKeptAliveAt: integer("last_kept_alive_at", { mode: "timestamp" }),
 });

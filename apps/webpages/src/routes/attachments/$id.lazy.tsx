@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, createLazyFileRoute } from "@tanstack/react-router";
 import clsx from "clsx";
 import { useCallback, useEffect, useState } from "react";
+import AttachmentHeader from "../../components/AttachmentHeader.tsx";
 import CustomShare, {} from "../../components/CustomShare.tsx";
 import Header from "../../components/Header.tsx";
 import { ShareUrl } from "../../components/ShareUrl.tsx";
@@ -84,12 +85,7 @@ function RouteComponent() {
     <>
       <Header />
       <div>
-        <header className="mx-8 my-4">
-          <h2 className="text-xl">{attachment.name}</h2>
-          <small>{attachment.filename}</small>
-          <p className="my-2 font-light">{attachment.description}</p>
-        </header>
-
+        <AttachmentHeader attachment={attachment} />
         <section>
           <div className="mx-auto my-4">
             <Previewer

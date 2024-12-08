@@ -1,13 +1,8 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import * as React from "react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect } from "react";
 import { PasteUpload } from "../components/PasteUpload.tsx";
-import type { trpc } from "../helpers/trpc.ts";
-
-export interface RouterAppContext {
-  trpc: typeof trpc;
-}
+import type { RouterAppContext } from "../main.tsx";
 
 export const Route = createRootRouteWithContext<RouterAppContext>()({
   component: RootComponent,
@@ -26,8 +21,6 @@ const TanStackRouterDevtools =
       );
 
 function RootComponent() {
-  const [queryClient] = useState(() => new QueryClient());
-
   // Prevent browser from opening dropped files in new tab
   useEffect(() => {
     const handleDragOver = (e: DragEvent) => {
@@ -61,11 +54,9 @@ function RootComponent() {
 
   return (
     <Suspense fallback="Loading...">
-      <QueryClientProvider client={queryClient}>
-        <Outlet />
-        <TanStackRouterDevtools />
-        <PasteUpload />
-      </QueryClientProvider>
+      <Outlet />
+      <TanStackRouterDevtools />
+      <PasteUpload />
     </Suspense>
   );
 }

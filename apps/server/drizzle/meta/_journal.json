@@ -15,6 +15,13 @@
       "when": 1733634034848,
       "tag": "0001_add-description-and-slug-for-attachments",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1733653134558,
+      "tag": "0002_add-generated-at-filed-for-attachments",
+      "breakpoints": true
     }
   ]
 }

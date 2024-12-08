@@ -5,13 +5,18 @@ import "./index.css";
 import invariant from "tiny-invariant";
 import "./i18n.ts";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { trpc } from "./helpers/trpc.ts";
 import { routeTree } from "./routeTree.gen";
 
 import "react-toastify/dist/ReactToastify.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 
-// Create a new router instance
+const queryClient = new QueryClient();
+
+export interface RouterAppContext {
+  queryClient: QueryClient;
+}
+
 const router = createRouter({
   routeTree,
   defaultPreload: "intent",
@@ -21,7 +26,7 @@ const router = createRouter({
     </div>
   ),
   context: {
-    trpc,
+    queryClient,
   },
 });
 
@@ -38,7 +43,9 @@ invariant(rootEl, "Root element not found");
 
 createRoot(rootEl).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
     <ToastContainer />
   </StrictMode>,
 );
