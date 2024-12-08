@@ -5,6 +5,7 @@ import { nanoid } from "nanoid";
 import { z } from "zod";
 import { AttachmentStatus, attachments } from "../../db/schema.ts";
 import { generateImageInfo } from "../ai.ts";
+import { config } from "../config.ts";
 import { db } from "../db.ts";
 import { getImagorUrl } from "../helpers/imagor.ts";
 import {
@@ -226,6 +227,13 @@ export const attachmentsRouter = t.router({
   generateInfo: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
+      if (!config.AI_PROVIDER) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Disabled",
+        });
+      }
+
       const id = input.id;
       const attachment = await db.query.attachments.findFirst({
         where: and(eq(attachments.id, id), eq(attachments.owner, ctx.user)),

@@ -63,7 +63,7 @@ const configSchema = z.object({
 
   // AI
 
-  AI_PROVIDER: z.enum(["openai"]).default("openai"),
+  AI_PROVIDER: z.enum(["openai"]).optional(),
   AI_GENERATION_LANGUAGE: z
     .string()
     .default("en-US")
