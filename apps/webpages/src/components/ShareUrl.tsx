@@ -3,6 +3,7 @@ import { type FC, useState } from "react";
 import type { ShareOptions } from "../schemas/share-options.ts";
 
 type ShareUrlProps = {
+  attachmentName: string;
   name: string;
   url: string;
   options: ShareOptions;
@@ -10,19 +11,12 @@ type ShareUrlProps = {
 };
 
 export const ShareUrl: FC<ShareUrlProps> = ({
+  attachmentName,
   name,
   url,
   options,
   onSelect,
 }) => {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-
   return (
     <div
       className={clsx(
@@ -45,25 +39,42 @@ export const ShareUrl: FC<ShareUrlProps> = ({
           )}
         </span>
       </div>
-      <div className="flex items-center mt-1">
+      <InputCopy value={url} />
+      <InputCopy value={`![${attachmentName}](${url})`} />
+    </div>
+  );
+};
+
+const InputCopy: FC<{ value: string }> = ({ value }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <div className="flex items-center mt-1">
+      <div className="flex-1">
         <input
           type="text"
           readOnly
-          value={url}
-          className="flex-1 bg-base-100 rounded-lg border-none focus:outline-none px-2 py-1 text-sm"
+          value={value}
+          className="w-full bg-base-100 rounded-lg border-none focus:outline-none px-2 py-1 text-sm"
           onClick={(ev) => (ev.target as HTMLInputElement).select()}
         />
-        <button
-          type="button"
-          onClick={handleCopy}
-          className={clsx(
-            "btn btn-sm flex items-center px-2 py-1 rounded-md",
-            copied ? "btn-success" : "btn-ghost",
-          )}
-        >
-          <span className="iconify solar--copy-bold-duotone text-lg" />
-        </button>
       </div>
+      <button
+        type="button"
+        onClick={handleCopy}
+        className={clsx(
+          "btn btn-sm flex items-center px-2 py-1 rounded-md",
+          copied ? "btn-success" : "btn-ghost",
+        )}
+      >
+        <span className="iconify solar--copy-bold-duotone text-lg" />
+      </button>
     </div>
   );
 };

@@ -140,6 +140,7 @@ function RouteComponent() {
                 return (
                   <li key={preset.name}>
                     <ShareUrl
+                      attachmentName={attachment.name}
                       name={preset.name}
                       url={preset.url}
                       options={preset.options}
