@@ -18,7 +18,7 @@ export const attachments = sqliteTable("attachments", {
   mime: text("mime"),
   path: text("path").notNull().unique(),
   slug: text("slug").notNull().unique(),
-  description: text("slug"),
+  description: text("description"),
   metadata: text("metadata", { mode: "json" }).default("{}"),
   status: text("status", {
     enum: [
