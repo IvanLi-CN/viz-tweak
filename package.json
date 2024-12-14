@@ -9,7 +9,8 @@
     "lint": "bun --filter=\"*\" run lint",
     "db:push": "bun --filter=\"./apps/server\" run --no-truncate db:push",
     "db:gen": "bun --filter=\"./apps/server\" run --no-truncate db:gen",
-    "db:studio": "bun --filter=\"./apps/server\" run --no-truncate db:studio"
+    "db:studio": "bun --filter=\"./apps/server\" run --no-truncate db:studio",
+    "release": "release-it"
   },
   "devDependencies": {
     "lefthook": "^1.9.2",
