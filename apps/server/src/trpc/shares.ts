@@ -73,6 +73,8 @@ export const sharesRouter = t.router({
         filterList.push("preview()");
       }
 
+      filterList.push("strip_exif()");
+
       if (filterList.length > 0) {
         imagorPathList.push(`filters:${filterList.join(":")}`);
       }

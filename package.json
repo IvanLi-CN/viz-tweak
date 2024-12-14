@@ -10,5 +10,9 @@
     "db:push": "bun --filter=\"./apps/server\" run --no-truncate db:push",
     "db:gen": "bun --filter=\"./apps/server\" run --no-truncate db:gen",
     "db:studio": "bun --filter=\"./apps/server\" run --no-truncate db:studio"
+  },
+  "devDependencies": {
+    "lefthook": "^1.9.2",
+    "release-it": "^17.10.0"
   }
 }

@@ -17,7 +17,7 @@ Here's a refined version of your feature list with some enhancements for clarity
   - [x] **Resizing**: Adjust image dimensions to fit various needs.
   - [x] **Format Conversion**: Convert images to different formats (e.g., JPEG to PNG).
   - [x] **Rotation**: Rotate images as required.
-  - [ ] **Metadata Omission**: Remove metadata from images to reduce file size or for privacy concerns.
+  - [x] **Metadata Omission**: Remove Exif metadata (but not ICC profiles) from images to address privacy concerns.
   - [ ] **Watermarking**: Add watermarks to images for branding or copyright protection.
 
 - **Video Conversion with FFmpeg**:
