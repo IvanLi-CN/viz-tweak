@@ -15,5 +15,6 @@
   "devDependencies": {
     "lefthook": "^1.9.2",
     "release-it": "^17.10.0"
-  }
+  },
+  "version": "0.1.0"
 }
