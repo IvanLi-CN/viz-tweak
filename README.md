@@ -8,6 +8,8 @@ VIZ Tweak is a web app for hosting media files. It supports dynamic conversion o
 
 Here's a refined version of your feature list with some enhancements for clarity and completeness:
 
+![screenshots](./doc/screenshot.png)
+
 ## Features
 
 - **S3 File Storage**:
