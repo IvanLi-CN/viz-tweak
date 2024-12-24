@@ -111,6 +111,9 @@ const AttachmentHeader: FC<AttachmentHeaderProps> = ({ attachment }) => {
             ev.stopPropagation();
             form.handleSubmit();
           }}
+          onPaste={(ev) => {
+            ev.stopPropagation();
+          }}
         >
           <form.Field
             name="name"
