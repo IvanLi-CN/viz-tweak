@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import type { FC } from "react";
 import { trpc } from "../helpers/trpc.ts";
 import UploadLink from "./UploadLink.tsx";
@@ -9,6 +8,12 @@ const Header: FC = () => {
     queryKey: ["user", "me"],
     queryFn: async () => {
       return await trpc.users.whoami.query();
+    },
+  });
+  const { data: config } = useQuery({
+    queryKey: ["config"],
+    queryFn: async () => {
+      return await trpc.configs.get.query();
     },
   });
 
@@ -21,7 +26,7 @@ const Header: FC = () => {
           </a>
         </div>
         <div className="flex-none">
-          <ul className="menu menu-horizontal px-1">
+          <ul className="menu menu-horizontal px-1 gap-2 items-center">
             <li>
               <UploadLink />
             </li>
@@ -29,12 +34,17 @@ const Header: FC = () => {
               <details>
                 <summary>{user?.name ?? "Anonymous"}</summary>
                 <ul className="bg-base-100 rounded-t-none p-2">
-                  <li>
-                    <Link to="/">Link 1</Link>
-                  </li>
-                  <li>
-                    <Link to="/">Link 2</Link>
-                  </li>
+                  {config?.ssoLoginUrl && !user && (
+                    <li>
+                      <a
+                        href={config?.ssoLoginUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Login
+                      </a>
+                    </li>
+                  )}
                 </ul>
               </details>
             </li>

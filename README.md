@@ -31,7 +31,7 @@ Here's a refined version of your feature list with some enhancements for clarity
 
 - **User Authorization**:
   - [x] **Trusted Header SSO**: Utilize trusted headers for user authentication.
-  - [ ] **Login Button**: Redirect users to an external login page.
+  - [x] **Login Button**: Redirect users to an external login page.
 
 - **AI Integration**:
   - [x] Utilize AI to generate or extract useful information from images (e.g., object detection, description generation).

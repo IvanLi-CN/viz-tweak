@@ -60,6 +60,7 @@ const configSchema = z.object({
     .transform((header) => header.toLowerCase())
     .default("Remote-User"),
   ALLOW_ANONYMOUS: z.boolean({ coerce: true }).default(false),
+  SSO_LOGIN_URL: z.string().url().optional(),
 
   // AI
 
