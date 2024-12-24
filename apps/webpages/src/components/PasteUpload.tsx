@@ -7,10 +7,7 @@ export const PasteUpload: FC = () => {
   const createAttachment = useUpload();
 
   const handlePaste = useCallback(
-    (ev: ClipboardEvent) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-
+    async (ev: ClipboardEvent) => {
       const items = ev.clipboardData?.items;
 
       if (!items) {
@@ -24,6 +21,27 @@ export const PasteUpload: FC = () => {
       }
 
       if (item.kind !== "file") {
+        const item = await navigator.clipboard.read().then((res) => res[0]);
+
+        for (const type of item.types) {
+          if (type.startsWith("image/")) {
+            const blob = await item.getType(type);
+
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            createAttachment(
+              new File([blob], "clipboard.png", {
+                type,
+              }),
+            );
+            navigate({
+              to: "/upload",
+            });
+            return;
+          }
+        }
+
         return;
       }
 
@@ -32,6 +50,9 @@ export const PasteUpload: FC = () => {
       if (!file) {
         return;
       }
+
+      ev.preventDefault();
+      ev.stopPropagation();
 
       createAttachment(file);
       navigate({
