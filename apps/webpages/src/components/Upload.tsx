@@ -168,7 +168,10 @@ const Upload: FC = () => {
       {status === "done" && attachmentInfo && (
         <div className="p-4 flex justify-center items-center min-h-96">
           <div>
-            Uploaded. <Link to={`/attachments/${attachmentInfo.id}`}>View</Link>
+            Uploaded.{" "}
+            <Link to="/attachments/$id" params={{ id: attachmentInfo.id }}>
+              View
+            </Link>
           </div>
         </div>
       )}
